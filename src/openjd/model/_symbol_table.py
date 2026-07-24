@@ -161,6 +161,18 @@ class SymbolTable:
 
     @property
     def expr_host_rules(self) -> Optional[list[Any]]:
+        """The host-context path mapping rules, or ``None`` for no host
+        context (see the ``_expr_host_rules`` field comment).
+
+        .. warning::
+            Do not mutate the returned list in place (e.g. ``.append``) —
+            in-place mutation bypasses the mutation-version bump, so the
+            EXPR evaluation cache would keep serving a profile built from
+            the old rules. To change the rules, assign a new list through
+            this property; the setter bumps the version. (No caller mutates
+            in place today: the session runtime assigns a whole list once,
+            and everything else only reads.)
+        """
         return self._expr_host_rules
 
     @expr_host_rules.setter
