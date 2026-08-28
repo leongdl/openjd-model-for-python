@@ -534,17 +534,21 @@ def _action_referenced_namespaces(action: Any) -> set[str]:
     ``WrappedEnv`` / ``WrappedStep``) referenced by an Action's format strings.
 
     Inspects every FormatString-bearing field of the Action: ``command``, each
-    of ``args``, and ``timeout`` (which is a FormatString under the
-    FEATURE_BUNDLE_1 extension, and a plain int otherwise — non-FormatString
+    of ``args``, ``timeout``, and the cancelation sub-model's ``mode`` and
+    ``notifyPeriodInSeconds`` (the latter three are FormatStrings under the
+    FEATURE_BUNDLE_1 extension, and plain values otherwise — non-FormatString
     values are skipped).
     """
     referenced: set[str] = set()
     if action is None:
         return referenced
+    cancelation = getattr(action, "cancelation", None)
     format_strings = [
         getattr(action, "command", None),
         *(getattr(action, "args", None) or []),
         getattr(action, "timeout", None),
+        getattr(cancelation, "mode", None),
+        getattr(cancelation, "notifyPeriodInSeconds", None),
     ]
     for fs in format_strings:
         if not isinstance(fs, FormatString):
